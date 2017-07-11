@@ -36,7 +36,7 @@ void printdir(char *dir, int depth)
 			if (strcmp(entry->d_name, ".") == 0 ||   
 					strcmp(entry->d_name, "..") == 0 )    
 				continue;     
-			//printf("%*s%s/\n", depth, "", entry->d_name);  
+			printf("%*s%s/\n", depth, "", entry->d_name);  
 			printdir(entry->d_name, depth+4);  
 		} else  
 			printf("%*s%s\n", depth, "", entry->d_name);  
