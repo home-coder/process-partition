@@ -85,6 +85,7 @@ static void commandline_parcel()
 	printf("rootvalue:%s\n", rootvalue);
 }
 
+//never used
 static int statfs_getblc2byte()
 {
 	struct statfs disk_info;
@@ -103,31 +104,36 @@ static int getblk2byte()
 	return 1024;
 }
 
-static void cal_flash(char *buf)
+static void cal_flash(char *buf, char *part)
 {
 	int ret = 0, i = 0;
-	char *pbuf = buf;
-	char *sdaname = NULL;
-	char *psda = NULL;
-	char *ppsda = NULL;
-	unsigned long sdasize = 0UL;
-	int blk2byte = 0, sdashow = 0;
+	char *pbuf;
+	char *partname = NULL;
+	char *ppart = NULL;
+	char *pppart = NULL;
+	unsigned long partsize = 0UL;
+	int blk2byte = 0, partshow = 0;
+	int bufsize = strlen(buf);
 
-	sdaname = strstr(pbuf, "sda");
-	psda = sdaname-2;
-	psda[1] = '\0';
-	while (psda[i] != ' ') {
+	pbuf = (char *)malloc(bufsize * sizeof(char));
+	memset(pbuf, 0, bufsize);
+	memcpy(pbuf, buf, bufsize);
+
+	partname = strstr(pbuf, part);
+	ppart = partname-2;
+	ppart[1] = '\0';
+	while (ppart[i] != ' ') {
 		i--;
-		ppsda = psda + i;
+		pppart = ppart + i;
 	}
-	dbgprint("psda %s\n", ppsda + 1);
-	sdasize = strtoul(ppsda+1, NULL, 10);
-	dbgprint("sda size %ld blocks\n", sdasize);
+	dbgprint("%s %s\n", part, pppart + 1);
+	partsize = strtoul(pppart+1, NULL, 10);
+	dbgprint("%s size %ld blocks\n", part, partsize);
 	//TODO 计算block与GB的对应关系
 	//blk2byte = statfs_getblc2byte();4096是在statfs的函数下得到的.如果用df或者proc/parttions的块大小是1024byte
 	blk2byte = getblk2byte();
-	sdashow = (sdasize * blk2byte) >> 30;
-	dbgprint("sdashow %dGB\n", sdashow);
+	partshow = (partsize * blk2byte) >> 30;
+	dbgprint("%sshow %dGB\n", part, partshow);
 }
 
 static void parttion_parcel()
@@ -149,7 +155,8 @@ static void parttion_parcel()
 	buf[ret] = '\0';
 	dbgprint("\nbuf is %s\n", buf);
 
-	cal_flash(buf);
+	cal_flash(buf, "sda");
+	cal_flash(buf, "sdb");
 }
 
 int main()
