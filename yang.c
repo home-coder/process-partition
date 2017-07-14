@@ -27,18 +27,8 @@
 const char* time = __DATE__" " __TIME__;
 const char* dbinfo = "__LINE__,__func__";
 
-int main()
+static void commandline_parcel()
 {
-#ifdef PARTTION
-	int fd;
-	fd = open(PARTTIONLINE, O_RDONLY);
-	if (fd < 0) {
-		perror("open failed!\n");
-		exit(-1);
-	}
-#endif
-
-#ifdef COMDLINE
 	char *rootkey = "root";
 	char buf[BUFSIZE];
 	char *rootloc = NULL;
@@ -52,7 +42,7 @@ int main()
 		perror("open failed!\n");
 		exit(-1);
 	}
-	
+
 	if ((ret = read(fd, buf, BUFSIZE)) < 0) {
 		fprintf(stderr, "read err");
 		exit(-1);
@@ -70,7 +60,7 @@ int main()
 	valueloc = rootloc + strlen(rootkey) - 1;
 	if (!valueloc) {
 		perror("--valueloc is not exsit\n");
-		return -1;
+		exit(-1);
 	}
 	memset(rootvalue, 0, BUFSIZE);
 	memccpy(rootvalue, valueloc, ' ', BUFSIZE);
@@ -78,6 +68,21 @@ int main()
 	printf("--ret:%d\n", ret);
 	rootvalue[ret] = '\0';
 	printf("rootvalue:%s\n", rootvalue);
+}
+
+int main()
+{
+#ifdef PARTTION
+	int fd;
+	fd = open(PARTTIONLINE, O_RDONLY);
+	if (fd < 0) {
+		perror("open failed!\n");
+		exit(-1);
+	}
+#endif
+
+#ifdef COMDLINE
+	commandline_parcel();
 #endif
 
 	return 0;
