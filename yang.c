@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <sys/vfs.h>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -84,6 +85,24 @@ static void commandline_parcel()
 	printf("rootvalue:%s\n", rootvalue);
 }
 
+static int statfs_getblc2byte()
+{
+	struct statfs disk_info;
+	char *path = "/dev/sda";
+	int ret = 0;
+
+	if (ret == statfs(path, &disk_info) == -1) {
+	   return -1;
+	}
+	dbgprint(" block size: %ld bytes \n ", disk_info.f_bsize);
+	return disk_info.f_bsize;
+}
+
+static int getblk2byte()
+{
+	return 1024;
+}
+
 static void cal_flash(char *buf)
 {
 	int ret = 0, i = 0;
@@ -92,6 +111,7 @@ static void cal_flash(char *buf)
 	char *psda = NULL;
 	char *ppsda = NULL;
 	unsigned long sdasize = 0UL;
+	int blk2byte = 0, sdashow = 0;
 
 	sdaname = strstr(pbuf, "sda");
 	psda = sdaname-2;
@@ -102,8 +122,12 @@ static void cal_flash(char *buf)
 	}
 	dbgprint("psda %s\n", ppsda + 1);
 	sdasize = strtoul(ppsda+1, NULL, 10);
+	dbgprint("sda size %ld blocks\n", sdasize);
 	//TODO 计算block与GB的对应关系
-	dbgprint("sda size %ldM\n", sdasize);
+	//blk2byte = statfs_getblc2byte();4096是在statfs的函数下得到的.如果用df或者proc/parttions的块大小是1024byte
+	blk2byte = getblk2byte();
+	sdashow = (sdasize * blk2byte) >> 30;
+	dbgprint("sdashow %dGB\n", sdashow);
 }
 
 static void parttion_parcel()
