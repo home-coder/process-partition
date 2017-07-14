@@ -39,8 +39,7 @@
 //#define COMDLINE_TEST
 
 const char* time = __DATE__" " __TIME__;
-const char* dbinfo = "__LINE__,__func__";
-
+const char* overinfo = "----byebye----";
 
 static void commandline_parcel()
 {
@@ -136,6 +135,11 @@ static void cal_flash(char *buf, char *part)
 	dbgprint("%sshow %dGB\n", part, partshow);
 }
 
+static void printbuildversion()
+{
+	printf("%s\n", time);
+}
+
 static void parttion_parcel()
 {
 	int ret = 0;
@@ -168,6 +172,9 @@ int main()
 #ifdef COMDLINE_TEST
 	commandline_parcel();
 #endif
+	printbuildversion();
+
+	printf("\n%s\n", overinfo);
 
 	return 0;
 }
