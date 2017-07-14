@@ -20,12 +20,26 @@
 #define  LOGI(...) __android_log_print (ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...) __android_log_print (ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #endif
+//TODO 将ANDROID和Linux的debug合并成同名的方式，通过红开关控制
+#define DEBUG
+#ifdef DEBUG
+#define dbgprint(format,args...) ({ \
+	fprintf (stderr, "[%s] <%d>-->", __func__, __LINE__); \
+	fprintf(stderr, format, ##args);})
+#else
+#define dbgprint(format,args...)
+#endif
 
 #define PARTTIONLINE  "/proc/partitions"
 #define COMDLINE	  "/proc/cmdline"
-#define BUFSIZE	      256
+#define BUFSIZE	      1024
+
+#define PARTTION_TEST
+//#define COMDLINE_TEST
+
 const char* time = __DATE__" " __TIME__;
 const char* dbinfo = "__LINE__,__func__";
+
 
 static void commandline_parcel()
 {
@@ -70,18 +84,57 @@ static void commandline_parcel()
 	printf("rootvalue:%s\n", rootvalue);
 }
 
-int main()
+static void cal_flash(char *buf)
 {
-#ifdef PARTTION
+	int ret = 0, i = 0;
+	char *pbuf = buf;
+	char *sdaname = NULL;
+	char *psda = NULL;
+	char *ppsda = NULL;
+	unsigned long sdasize = 0UL;
+
+	sdaname = strstr(pbuf, "sda");
+	psda = sdaname-2;
+	psda[1] = '\0';
+	while (psda[i] != ' ') {
+		i--;
+		ppsda = psda + i;
+	}
+	dbgprint("psda %s\n", ppsda + 1);
+	sdasize = strtoul(ppsda+1, NULL, 10);
+	//TODO 计算block与GB的对应关系
+	dbgprint("sda size %ldM\n", sdasize);
+}
+
+static void parttion_parcel()
+{
+	int ret = 0;
+	char buf[BUFSIZE];
 	int fd;
+
 	fd = open(PARTTIONLINE, O_RDONLY);
 	if (fd < 0) {
 		perror("open failed!\n");
 		exit(-1);
 	}
+	if ((ret = read(fd, buf, BUFSIZE)) < 0) {
+		dbgprint("read error\n");
+		exit(-1);
+	}
+
+	buf[ret] = '\0';
+	dbgprint("\nbuf is %s\n", buf);
+
+	cal_flash(buf);
+}
+
+int main()
+{
+#ifdef PARTTION_TEST
+	parttion_parcel();
 #endif
 
-#ifdef COMDLINE
+#ifdef COMDLINE_TEST
 	commandline_parcel();
 #endif
 
