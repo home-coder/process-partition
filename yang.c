@@ -88,13 +88,14 @@ static void commandline_parcel()
 static int statfs_getblc2byte()
 {
 	struct statfs disk_info;
-	char *path = "/dev/sda";
+	char *path = "/home";
 	int ret = 0;
 
 	if (ret == statfs(path, &disk_info) == -1) {
 	   return -1;
 	}
 	dbgprint(" block size: %ld bytes \n ", disk_info.f_bsize);
+	dbgprint(" block num: %ld  \n ", disk_info.f_blocks);
 	return disk_info.f_bsize;
 }
 
@@ -172,6 +173,8 @@ int main()
 #ifdef COMDLINE_TEST
 	commandline_parcel();
 #endif
+	/*test standard*/
+	statfs_getblc2byte();
 	printbuildversion();
 
 	printf("\n%s\n", overinfo);
