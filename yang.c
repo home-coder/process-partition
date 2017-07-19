@@ -94,8 +94,8 @@ static int statfs_getblc2byte()
 	if (ret == statfs(path, &disk_info) == -1) {
 	   return -1;
 	}
-	dbgprint(" block size: %ld bytes \n ", disk_info.f_bsize);
-	dbgprint(" block num: %ld  \n ", disk_info.f_blocks);
+	dbgprint(" block size: %ld bytes \n", disk_info.f_bsize);
+	dbgprint(" block num: %ld  \n", disk_info.f_blocks);
 	return disk_info.f_bsize;
 }
 
